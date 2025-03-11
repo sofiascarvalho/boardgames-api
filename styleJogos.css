@@ -4,20 +4,11 @@ body {
     text-align: center;
     margin: 0;
     padding: 20px;
-    background-image: url(./img/melhores-jogos-tabuleiro.jpg);
-    background-repeat: no-repeat;
-    background-size: 100%;
-}
-
-input {
-    padding: 10px;
-    margin: 10px;
 }
 
 h1 {
     font-size: 24px;
     margin-bottom: 20px;
-    color: white;
 }
 
 #nomeJogo {
@@ -27,7 +18,7 @@ h1 {
 }
 
 button {
-    padding: 10px 20px;
+    padding: 10px 15px;
     background-color: #007BFF;
     color: white;
     border: none;
@@ -52,8 +43,7 @@ button:hover {
     background: white;
     border-radius: 10px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    margin: 10px;
+    padding: 15px;
     width: 200px;
     text-align: center;
     cursor: pointer;
