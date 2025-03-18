@@ -76,7 +76,6 @@ document.getElementById('pesquisar').addEventListener('click', preencherJogos)*/
 
 'use strict';
 
-// Função para buscar jogos pelo nome
 async function pesquisarJogos(nomeJogo) {
     const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://boardgamegeek.com/xmlapi2/search?query=' + nomeJogo + '&type=boardgame')}`;
     const response = await fetch(url);
@@ -101,7 +100,6 @@ async function pesquisarJogos(nomeJogo) {
     return jogos;
 }
 
-// Função para obter detalhes do jogo (imagem e descrição)
 async function obterDetalhesJogo(id) {
     const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://boardgamegeek.com/xmlapi2/thing?id=' + id)}`;
     const response = await fetch(url);
