@@ -1,39 +1,71 @@
-'use strict';
 
-async function obterDetalhesJogo(id) {
-    const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://boardgamegeek.com/xmlapi2/thing?id=' + id)}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    const xmlText = data.contents;
+    'use strict';
 
-    console.log(`XML do jogo ${id}:`, xmlText); // Depuração
-
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-    // Busca a imagem, primeiro tenta <thumbnail>, depois <image>
-    let imagemElement = xmlDoc.getElementsByTagName("thumbnail")[0] || xmlDoc.getElementsByTagName("image")[0];
-    let imagem = imagemElement ? imagemElement.textContent : "https://via.placeholder.com/150"; // Placeholder caso não tenha
-
-    return imagem;
-}
-
-// Função para carregar os detalhes na página
-async function carregarDetalhes() {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
-
-    if (!id) {
-        document.getElementById("detalhes").innerHTML = "<p>Jogo não encontrado.</p>";
-        return;
+    // Função para obter parâmetros da URL
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
     }
 
-    const imagem = await obterDetalhesJogo(id);
+    // Função para carregar os detalhes do jogo na página
+    async function carregarDetalhesJogo() {
+        const idJogo = getQueryParam("id");
 
-    // Adiciona a imagem na página
-    document.getElementById("imagemJogo").src = imagem;
-    document.getElementById("imagemJogo").alt = `Imagem do jogo ${id}`;
-}
+        if (!idJogo) {
+            document.getElementById("tituloJogo").textContent = "Jogo não encontrado!";
+            return;
+        }
 
-// Chama a função ao carregar a página
-window.onload = carregarDetalhes;
+        const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://boardgamegeek.com/xmlapi2/thing?id=' + idJogo)}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        // Verifica se os dados foram obtidos corretamente
+        if (!data.contents) {
+            document.getElementById("tituloJogo").textContent = "Erro ao obter os detalhes do jogo.";
+            return;
+        }
+
+        const xmlText = data.contents;
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+        // Obtém o nome do jogo corretamente
+        const nomeElements = xmlDoc.querySelectorAll("name");
+        let nome = "Nome não disponível";
+
+        nomeElements.forEach(element => {
+            if (element.getAttribute("type") === "primary") {
+                nome = element.getAttribute("value");
+            }
+        });
+
+        if (nome === "Nome não disponível" && nomeElements.length > 0) {
+            nome = nomeElements[0].getAttribute("value");
+        }
+
+        // Obtém a imagem
+        const imagemElement = xmlDoc.querySelector("thumbnail") || xmlDoc.querySelector("image");
+        const imagem = imagemElement ? imagemElement.textContent : "https://via.placeholder.com/300";
+
+        // Obtém a descrição
+        const descricaoElement = xmlDoc.querySelector("description");
+        let descricao = descricaoElement ? descricaoElement.textContent : "Descrição não disponível.";
+
+        // Decodifica HTML/XML entities na descrição
+        descricao = decodeHTMLEntities(descricao);
+
+        // Atualiza os elementos HTML
+        document.getElementById("tituloJogo").textContent = nome;
+        document.getElementById("imagemJogo").src = imagem;
+        document.getElementById("descricaoJogo").textContent = descricao;
+    }
+
+    // Função para decodificar entidades HTML/XML
+    function decodeHTMLEntities(text) {
+        const doc = new DOMParser().parseFromString(text, "text/html");
+        return doc.documentElement.textContent;
+    }
+
+    // Chama a função ao carregar a página
+    carregarDetalhesJogo();

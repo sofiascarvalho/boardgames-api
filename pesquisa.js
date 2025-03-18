@@ -80,8 +80,8 @@ document.getElementById('pesquisar').addEventListener('click', preencherJogos)*/
 async function pesquisarJogos(nomeJogo) {
     const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://boardgamegeek.com/xmlapi2/search?query=' + nomeJogo + '&type=boardgame')}`;
     const response = await fetch(url);
-    const data = await response.json(); // Obtendo o JSON corretamente
-    const xmlText = data.contents; // Pegando o XML dentro do JSON
+    const data = await response.json();
+    const xmlText = data.contents;
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
@@ -101,6 +101,7 @@ async function pesquisarJogos(nomeJogo) {
     return jogos;
 }
 
+// Função para obter detalhes do jogo (imagem e descrição)
 async function obterDetalhesJogo(id) {
     const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://boardgamegeek.com/xmlapi2/thing?id=' + id)}`;
     const response = await fetch(url);
@@ -112,11 +113,24 @@ async function obterDetalhesJogo(id) {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
-    // Primeiro tenta pegar a thumbnail, se não existir, tenta pegar a imagem principal
+    // Obtém a imagem (thumbnail ou imagem principal)
     let imagemElement = xmlDoc.getElementsByTagName("thumbnail")[0] || xmlDoc.getElementsByTagName("image")[0];
     let imagem = imagemElement ? imagemElement.textContent : "https://via.placeholder.com/150"; // Imagem padrão
 
-    return imagem;
+    // Obtém a descrição
+    let descricaoElement = xmlDoc.querySelector("description");
+    let descricao = descricaoElement ? descricaoElement.textContent : "Descrição não disponível.";
+    
+    // Decodifica HTML/XML entities
+    descricao = decodeHTMLEntities(descricao);
+
+    return { imagem, descricao };
+}
+
+// Função para decodificar entidades HTML/XML
+function decodeHTMLEntities(text) {
+    const doc = new DOMParser().parseFromString(text, "text/html");
+    return doc.documentElement.textContent;
 }
 
 // Função principal para preencher a lista de jogos na mesma página
@@ -138,7 +152,9 @@ async function preencherJogos() {
     }
 
     for (let jogo of jogos) {
-        jogo.imagem = await obterDetalhesJogo(jogo.id);
+        let detalhes = await obterDetalhesJogo(jogo.id);
+        jogo.imagem = detalhes.imagem;
+        jogo.descricao = detalhes.descricao;
 
         const card = document.createElement("div");
         card.classList.add("card");
@@ -155,6 +171,7 @@ async function preencherJogos() {
         card.appendChild(title);
         lista.appendChild(card);
 
+        // Redireciona para jogos.html ao clicar no card
         card.addEventListener("click", () => {
             window.location.href = `jogos.html?id=${jogo.id}`;
         });
