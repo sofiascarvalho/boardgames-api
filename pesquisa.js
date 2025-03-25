@@ -77,7 +77,8 @@ document.getElementById('pesquisar').addEventListener('click', preencherJogos)*/
 'use strict';
 
 async function pesquisarJogos(nomeJogo) {
-    const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://boardgamegeek.com/xmlapi2/search?query=' + nomeJogo + '&type=boardgame')}`;
+    //const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://boardgamegeek.com/xmlapi2/search?query=' + nomeJogo + '&type=boardgame')}`;
+    const url=`https://boardgamegeek.com/xmlapi2/search?query= ${nomeJogo} + '&type=boardgame'`
     const response = await fetch(url);
     const data = await response.json();
     const xmlText = data.contents;
@@ -101,7 +102,8 @@ async function pesquisarJogos(nomeJogo) {
 }
 
 async function obterDetalhesJogo(id) {
-    const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://boardgamegeek.com/xmlapi2/thing?id=' + id)}`;
+   // const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://boardgamegeek.com/xmlapi2/thing?id=' + id)}`;
+   const url=`https://boardgamegeek.com/xmlapi2/thing?id= ${id} `
     const response = await fetch(url);
     const data = await response.json();
     const xmlText = data.contents;
@@ -159,7 +161,8 @@ async function preencherJogos() {
         card.dataset.id = jogo.id;
 
         const img = document.createElement("img");
-        img.src = `https://api.codetabs.com/v1/proxy/?quest=${jogo.imagem}`;
+        //img.src = `https://api.codetabs.com/v1/proxy/?quest=${jogo.imagem}`;
+        img.src=jogo.imagem
         img.alt = jogo.nome;
 
         const title = document.createElement("h3");
